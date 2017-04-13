@@ -33,7 +33,7 @@ def solveModel(capacity, timeVect, revenueVect):
 
 	tripNum = numpy.size(revenueVect)
 	RANGE = range(tripNum)
-	assignment = pulp.LpVariable.dicts('assignment', RANGE, lowBound=0, upBound=1, cat='Binary')
+	assignment = pulp.LpVariable.dicts('assignment', RANGE, cat='Binary')
 
 	#Maximize revenue, set objective
 	totalRev = 0
@@ -41,39 +41,32 @@ def solveModel(capacity, timeVect, revenueVect):
 		totalRev += assignment[j]*revenueVect[j][0]
 	model += totalRev
 
-	time = np.zeros((1, timeVect.shape[1]))
+	time = []
+	#print "Time Vect: ", timeVect
+	for i in xrange(timeSectionNum):
+		time.append(pulp.LpAffineExpression([(assignment[j], timeVect[j][i]) for j in range(tripNum)]))
 
-	print("TIME.SHAPE")
-	print(time.shape)
-
-	#capacity_vec = np.array([capacity]*timeSectionNum)
-	for i in xrange(tripNum):
-		if (assignment[i] == 1):
-			time = np.add(time, timeVect[i][:])
-
-	print(time.shape)
-
+	print('time')
+	print(time)
 	#Setting time constraint
-	#model += pulp.LpConstraint(e=np.array(time[0]), sense=-1, name="time_constraint", rhs=capacity_vec)
 	for temp in xrange(timeSectionNum):
-		timeVal = time[0][temp]
-		print('timeVal')
-		print(timeVal)
-		print('capacity')
-		print(capacity)
+		timeVal = time[temp]
+		# print('timeVal')
+		# print(timeVal)
+		# print('capacity')
+		# print(capacity)
 		
 		print(timeVal <= capacity)
-		model +=  pulp.LpConstraint(timeVal <= capacity)
-		#model += pulp.LpConstraint(e=timeVal, sense=-1, name=str(temp)+"time_constraint", rhs=capacity)
-
+		model += pulp.LpConstraint(e=timeVal, sense=-1, name=str(temp)+"time_constraint", rhs=capacity)
+	print "Objective was: ", model
 	optimization_result = model.solve()
-	print('Objective becomes')
-	print pulp.value(model.objective)
-	print('optimization_result')
-	print(optimization_result == pulp.LpStatusOptimal)
-	print(time)
+	# print('Objective becomes')
+	# print pulp.value(model.objective)
+	# print('optimization_result')
+	# print(optimization_result)
+	# print(time)
 	for i in xrange(tripNum):
 		print (assignment[i].value())
 
-solveModel(1, time, rev)
+solveModel(5, time, rev)
 
