@@ -9,13 +9,14 @@ import numpy
 from numpy import dot
 import numpy as np
 import pandas as pd
+import csv
 
 #Import time vector and revenue vector from preprocessed files
-revFileName = 'testrev.csv'
+revFileName = 'revenue.csv'
 rev = pd.read_csv(revFileName, header=None)
 rev = rev.as_matrix()
 print rev
-timeFileName = 'testtime.csv'
+timeFileName = 'time.csv'
 time = pd.read_csv(timeFileName, header=None)
 time = time.as_matrix()
 print time
@@ -65,8 +66,11 @@ def solveModel(capacity, timeVect, revenueVect):
 	# print('optimization_result')
 	# print(optimization_result)
 	# print(time)
-	for i in xrange(tripNum):
-		print (assignment[i].value())
+	with open("result.csv","wb") as out:
+		writer = csv.writer(out)
+		for i in xrange(tripNum):
+			print (assignment[i].value())
+			writer.writerow(assignment[i].value())
 
 solveModel(5, time, rev)
 
